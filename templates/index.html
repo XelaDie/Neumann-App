@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="grid-container">
+    {% for user in users %}
+    <div class="grid-item" onclick="showDetails({{ user.id }}, this);">
+      {% if user.photo %}
+      <img src="data:image/jpeg;base64,{{ user.photo|b64encode }}" alt="User Photo" width="100">
+        {% else %}
+          <img src="{{ url_for('static', filename='images/noProfile.jpg') }}" alt="No Profile Picture" width="100">
+        {% endif %}
+        <div class="employee-info">
+            <p class="employee-name">{{ user.fname }} {{ user.lname }}</p>
+            <p class="employee-company">{{ user.company }}</p>
+        </div>
+        <div class="employee-color" style="background-color: {{ user.color }};"></div>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="user-details" class="user-details">
+    <div class="employee-color-detail" id="details-color"></div>
+    <div class="content">
+        <span class="close-btn" onclick="closeDetails();">&times;</span>
+        <img id="details-photo" src="/static/images/noProfile.jpg" alt="User Photo" width="150">
+        <h3 id="details-name"></h3>
+        <p id="details-company"></p>
+        <p style="font-weight: bold;">Address:</p>
+        <p id="details-address"></p>
+        <p id="details-city"></p>
+        <p id="details-county"></p>
+    </div>
+    <a class="edit-link" onclick="#">Edit</a>
+    <a class="delete-link" onclick="confirmDelete();">Delete</a>
+</div>
+{% endblock %}

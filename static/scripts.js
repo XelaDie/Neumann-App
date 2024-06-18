@@ -140,3 +140,52 @@ function confirmDelete() {
         });
     }
 }
+
+function showEditModal() {
+    fetch(`/user/${currentUserId}`)
+    .then(response => response.json())
+    .then(user => {
+        document.getElementById('edit-user-id').value = user.id;
+        document.getElementById('edit-fname').value = user.fname;
+        document.getElementById('edit-lname').value = user.lname;
+        document.getElementById('edit-address').value = user.address;
+        document.getElementById('edit-city').value = user.city;
+        document.getElementById('edit-county').value = user.county;
+        document.getElementById('edit-company').value = user.company;
+    
+        document.getElementById('edit-employee-modal').style.display = 'block';
+    });
+}
+
+function closeEditModal() {
+    document.getElementById('edit-employee-modal').style.display = 'none';
+}
+
+function saveEmployeeChanges() {
+    const formData = new FormData(document.getElementById('edit-employee-form'));
+
+    const companyColors = {
+        'Benton': '#8bc447',
+        'Chanay': '#8a3b93',
+        'Chemel': '#1473bb',
+        'Feltz Printing': '#c32482',
+        'Commercial Press': '#dde553'
+    };
+    
+    formData.append('color', companyColors[formData.get('company')]);
+
+    fetch('/update_user', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Employee updated successfully');
+            closeEditModal();
+            location.reload();
+        } else {
+            alert('Error updating employee');
+        }
+    });
+}

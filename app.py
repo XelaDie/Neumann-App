@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify
 from base64 import b64encode
-from backend.user_management import fetch_users, fetch_companies, fetch_user_details, delete_user
+from backend.user_management import fetch_users, fetch_companies, fetch_user_details, delete_user, update_user
 
 app = Flask(__name__)
 
@@ -43,6 +43,20 @@ def user_details(user_id):
 @app.route('/delete_user/<int:user_id>', methods=['POST'])
 def delete_user_route(user_id):
     delete_user(user_id)
+    return jsonify({'success': True})
+
+@app.route('/update_user', methods=['POST'])
+def update_user_route():
+    user_id = request.form['user_id']
+    fname = request.form['fname']
+    lname = request.form['lname']
+    company = request.form['company']
+    address = request.form['address']
+    city = request.form['city']
+    county = request.form['county']
+    color = request.form['color']
+    photo = request.files.get('photo')
+    update_user(user_id, fname, lname, company, address, city, county, color, photo)
     return jsonify({'success': True})
 
 if __name__ == '__main__':

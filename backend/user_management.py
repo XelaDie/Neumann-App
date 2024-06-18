@@ -30,3 +30,21 @@ def delete_user(user_id):
     cursor.execute("DELETE FROM Users WHERE id = %s", (user_id,))
     mydb.commit()
     cursor.close()
+    
+def update_user(user_id, fname, lname, company, address, city, county, color, photo):
+    cursor = mydb.cursor()
+    if photo:
+        photo_data = photo.read()
+        cursor.execute("""
+            UPDATE Users
+            SET fname = %s, lname = %s, company = %s, address = %s, city = %s, county = %s, color = %s, photo = %s
+            WHERE id = %s
+        """, (fname, lname, company, address, city, county, color, photo_data, user_id))
+    else:
+        cursor.execute("""
+            UPDATE Users
+            SET fname = %s, lname = %s, company = %s, address = %s, city = %s, county = %s, color = %s
+            WHERE id = %s
+        """, (fname, lname, company, address, city, county, color, user_id))
+    mydb.commit()
+    cursor.close()

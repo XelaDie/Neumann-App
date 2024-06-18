@@ -189,3 +189,37 @@ function saveEmployeeChanges() {
         }
     });
 }
+
+function showAddModal() {
+    document.getElementById('add-employee-modal').style.display = 'block';
+}
+
+function closeAddModal() {
+    document.getElementById('add-employee-modal').style.display = 'none';
+}
+
+function submitAddEmployee() {
+    const formData = new FormData(document.getElementById('add-employee-form'));
+    const company = formData.get('company');
+    const companyColors = {
+        'Benton': '#8bc447',
+        'Chanay': '#8a3b93',
+        'Chemel': '#1473bb',
+        'Feltz Printing': '#c32482',
+        'Commercial Press': '#dde553'
+    };
+    formData.append('color', companyColors[company]);
+
+    fetch('/add_user', {
+        method: 'POST',
+        body: formData
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              closeAddModal();
+              location.reload();
+          } else {
+              alert('Failed to add employee.');
+          }
+      });
+}

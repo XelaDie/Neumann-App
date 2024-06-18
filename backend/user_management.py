@@ -48,3 +48,19 @@ def update_user(user_id, fname, lname, company, address, city, county, color, ph
         """, (fname, lname, company, address, city, county, color, user_id))
     mydb.commit()
     cursor.close()
+
+def add_user(fname, lname, company, address, city, county, color, photo):
+    cursor = mydb.cursor()
+    if photo:
+        photo_data = photo.read()
+        cursor.execute("""
+            INSERT INTO Users (fname, lname, company, address, city, county, color, photo)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (fname, lname, company, address, city, county, color, photo_data))
+    else:
+        cursor.execute("""
+            INSERT INTO Users (fname, lname, company, address, city, county, color)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (fname, lname, company, address, city, county, color))
+    mydb.commit()
+    cursor.close()

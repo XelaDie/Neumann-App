@@ -1,6 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<div class="user-filter">
+    <p>Company</p>
+    <form id="company-filter-form">
+        {% for company in companies %}
+        <input type="checkbox" id="company-{{ company }}" name="company" value="{{ company }}">
+        <label for="company-{{ company }}">{{ company }}</label><br>
+        {% endfor %}
+    </form>
+    <a class="addEmployee-link" onclick="#">Add Employee</a>
+</div>
+
+
 <div class="grid-container">
     {% for user in users %}
     <div class="grid-item" onclick="showDetails({{ user.id }}, this);">
@@ -33,4 +46,5 @@
     <a class="edit-link" onclick="#">Edit</a>
     <a class="delete-link" onclick="confirmDelete();">Delete</a>
 </div>
+
 {% endblock %}

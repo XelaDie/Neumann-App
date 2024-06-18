@@ -77,9 +77,12 @@ main {
 }
 
 .grid-container {
+    position: absolute;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+    left: 20%;
+    width: 78%;
 }
 
 .grid-item {
@@ -210,4 +213,11 @@ main {
 .delete-link:hover {
     color: rgb(200, 0, 0);
     font-weight: 600;
+}
+
+.user-filter {
+    position: absolute;
+    top: 75px;
+    left: 0;
+    width: 15%;
 }

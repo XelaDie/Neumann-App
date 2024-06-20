@@ -1,6 +1,9 @@
 import mysql.connector
 import os
 
+_user="root"
+_password="P@$$w0rd_"
+
 def convert_to_binary_data(filename):
     with open(os.path.join(os.path.dirname(__file__), '..', 'static', 'images', filename), 'rb') as file:
         binary_data = file.read()
@@ -8,8 +11,27 @@ def convert_to_binary_data(filename):
 
 mydb = mysql.connector.connect(
     host="localhost",
-    user="root",
-    password="P@$$w0rd_",
+    user=_user,
+    password=_password
+)
+
+cursor = mydb.cursor()
+
+db_name = "mydb"
+cursor.execute(f"SHOW DATABASES LIKE '{db_name}'")
+database_exists = cursor.fetchone()
+
+if not database_exists:
+    cursor.execute(f"CREATE DATABASE {db_name}")
+    print(f"Database '{db_name}' created successfully.")
+
+cursor.close()
+mydb.close()
+
+mydb = mysql.connector.connect(
+    host="localhost",
+    user=_user,
+    password=_password,
     database="mydb"
 )
 

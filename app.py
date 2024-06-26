@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from base64 import b64encode
 from backend.user_management import fetch_users, fetch_companies, fetch_user_details, delete_user, update_user, add_user
+from backend.user_management import add_company, update_company, delete_company
 
 app = Flask(__name__)
 
@@ -29,9 +30,37 @@ def index():
 @app.route('/filter_users', methods=['POST'])
 def filter_users():
     selected_companies = request.json.get('companies', [])
-    users = fetch_users(selected_companies)
+    search_text = request.json.get('searchText', '').lower()
+    sort_state = request.json.get('sortState', 0)
+    users = fetch_users(selected_companies, search_text, sort_state)
     json_compatible_users = convert_bytes_to_str(users)
     return jsonify(json_compatible_users)
+
+@app.route('/companies', methods=['GET'])
+def get_companies():
+    companies = fetch_companies()
+    return jsonify(companies)
+
+@app.route('/add_company', methods=['POST'])
+def add_company_route():
+    name = request.form['name']
+    color = request.form['color']
+    add_company(name, color)
+    return jsonify({'success': True})
+
+@app.route('/update_company', methods=['POST'])
+def update_company_route():
+    company_id = request.form['id']
+    name = request.form['name']
+    color = request.form['color']
+    update_company(company_id, name, color)
+    return jsonify({'success': True})
+
+@app.route('/delete_company', methods=['POST'])
+def delete_company_route():
+    company_id = request.form['id']
+    delete_company(company_id)
+    return jsonify({'success': True})
 
 @app.route('/user/<int:user_id>')
 def user_details(user_id):

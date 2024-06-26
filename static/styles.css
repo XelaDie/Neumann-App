@@ -76,6 +76,41 @@ main {
     padding: 20px;
 }
 
+.search-container {
+    display: flex;
+    margin: 0 0 20px 19%;
+}
+
+#search-box {
+    width: 45%;
+    padding: 10px 20px 10px 40px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: url('/static/images/search-icon.svg') no-repeat 5px center / 35px
+}
+
+#search-box:focus {
+    outline: none;
+    border-color: #666;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.sort-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    left: -3%;
+    top: 1px;
+}
+
+.sort-button img {
+    width: 15px;
+    height: 15px;
+}
+
 .grid-container {
     position: absolute;
     display: grid;
@@ -134,6 +169,10 @@ main {
 
 .user-filter {
     padding-left: 3%;
+    position: absolute;
+    top: 120px;
+    left: 0;
+    width: 15%;
 }
 
 .user-details {
@@ -219,13 +258,6 @@ main {
     font-weight: 600;
 }
 
-.user-filter {
-    position: absolute;
-    top: 75px;
-    left: 0;
-    width: 15%;
-}
-
 .modal {
     display: none; 
     position: fixed; 
@@ -247,6 +279,22 @@ main {
     max-width: 600px;
 }
 
+.modal-content p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.modal-content button {
+    margin: 10px;
+    padding: 5px 20px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background-color: #ddd;
+}
+
 .close {
     color: #aaa;
     float: right;
@@ -259,4 +307,20 @@ main {
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+#manage-companies-modal .modal-content {
+    margin: 7% auto; 
+}
+
+#company-list div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-left: 10px;
 }

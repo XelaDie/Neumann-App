@@ -28,3 +28,4 @@ A web application to manage employee information.
     ```
     python app.py
     ```
+5. The application should now be running at `http://127.0.0.1:5000/`

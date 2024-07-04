@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <h2>Sign Up</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color: {{ 'red' if message[0] == "error" else 'green' }}; font-size: 0.9em; margin: 0;">{{ message[1] }}</p>
+                {% endfor %}
+            {% endif %}
+            <form action="{{ url_for('signup') }}" method="POST" onsubmit="return validateSignupForm()">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                    <span class="error-message" id="username-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    <span class="error-message" id="email-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                    <p style="font-size: 0.7em; color: #d6d6d6a1;">Password must be at least 8 characters, contain an uppercase letter, a lowercase letter, a number, and a special character.</p>
+                    <span class="error-message" id="password-error"></span>
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+            </form>
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+        </div>
+    </div>
+    <script>
+        function validateSignupForm() {
+            var username = document.getElementById("username").value;
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+            var usernameRegex = /^[a-zA-Z0-9]{3,}$/;
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            var passwordRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/;
+
+            document.getElementById("username-error").textContent = '';
+            document.getElementById("email-error").textContent = '';
+            document.getElementById("password-error").textContent = '';
+
+            if (!usernameRegex.test(username)) {
+                document.getElementById("username-error").textContent = "Username must be at least 3 characters and contain only letters and numbers.";
+                return false;
+            }
+            if (!emailRegex.test(email)) {
+                document.getElementById("email-error").textContent = "Please enter a valid email address.";
+                return false;
+            }
+            if (!passwordRegex.test(password)) {
+                document.getElementById("password-error").textContent = "Password does not meet the requirements.";
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

@@ -1,11 +1,15 @@
-let currentUserId;
+let currentEmployeeId;
 let selectedBox;
 let sortState = 0;
+let currentPage = 1;
+const itemsPerPage = 10;
+let totalEmployees = 0;
 
 function loading() {
+    document.body.classList.add('hidden-content');
     const loadingScreen = document.getElementById('loading-screen');
-    loadingScreen.classList.add('fade-in');
     loadingScreen.style.display = 'flex';
+    loadingScreen.classList.add('fade-in');
 
     setTimeout(() => {
         loadingScreen.classList.remove('fade-in');
@@ -13,72 +17,128 @@ function loading() {
 
         loadingScreen.addEventListener('animationend', () => {
             loadingScreen.style.display = 'none';
+            document.body.classList.remove('hidden-content');
+            localStorage.setItem('loadingScreenShown', 'true');
         }, { once: true });
     }, 1000);
 }
-document.addEventListener('DOMContentLoaded', loading);
 
 document.addEventListener('DOMContentLoaded', function() {
+    if (!localStorage.getItem('loadingScreenShown')) {
+        loading();
+    } else {
+        document.body.classList.remove('hidden-content');
+    }
+
     const form = document.getElementById('company-filter-form');
-    form.addEventListener('change', filterUsers);
+    form.addEventListener('change', filterEmployees);
 
     const searchBox = document.getElementById('search-box');
-    searchBox.addEventListener('input', filterUsers);
+    searchBox.addEventListener('input', filterEmployees);
 });
 
-function filterUsers() {
+function filterEmployees(reset = false) {
     const selectedCompanies = Array.from(document.querySelectorAll('input[name="company"]:checked'))
         .map(checkbox => checkbox.value);
     const searchText = document.getElementById('search-box').value.toLowerCase();
 
-    fetch('/filter_users', {
+    if(reset){ currentPage = 1 }
+
+    fetch('/filter_employees', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ companies: selectedCompanies, searchText: searchText, sortState: sortState })
+        body: JSON.stringify({ companies: selectedCompanies, searchText: searchText, sortState: sortState, page: currentPage, itemsPerPage: itemsPerPage })
     })
     .then(response => response.json())
     .then(data => {
-        const employeeGrid = document.querySelector('.grid-container');
-        employeeGrid.innerHTML = '';
-
-        data.forEach(user => {
-            const gridItem = document.createElement('div');
-            gridItem.classList.add('grid-item');
-            gridItem.onclick = () => showDetails(user.id, gridItem);
-
-            const img = document.createElement('img');
-            img.alt = 'User Photo';
-            img.width = 100;
-            img.src = user.photo ? `data:image/jpeg;base64,${user.photo}` : '/static/images/noProfile.jpg';
-
-            const employeeInfo = document.createElement('div');
-            employeeInfo.classList.add('employee-info');
-
-            const employeeName = document.createElement('p');
-            employeeName.classList.add('employee-name');
-            employeeName.textContent = `${user.fname} ${user.lname}`;
-
-            const employeeCompany = document.createElement('p');
-            employeeCompany.classList.add('employee-company');
-            employeeCompany.textContent = user.company;
-
-            employeeInfo.appendChild(employeeName);
-            employeeInfo.appendChild(employeeCompany);
-
-            const employeeColor = document.createElement('div');
-            employeeColor.classList.add('employee-color');
-            employeeColor.style.backgroundColor = user.color;
-
-            gridItem.appendChild(img);
-            gridItem.appendChild(employeeInfo);
-            gridItem.appendChild(employeeColor);
-
-            employeeGrid.appendChild(gridItem);
-        });
+        totalEmployees = data.totalEmployees;
+        updateGrid(data.employees);
+        updatePaginationButtons();
     });
 }
+
+function updateGrid(employees) {
+    const employeeGrid = document.querySelector('.grid-container');
+    employeeGrid.innerHTML = '';
+
+    employees.forEach(employee => {
+        const gridItem = document.createElement('div');
+        gridItem.classList.add('grid-item');
+        gridItem.onclick = () => showDetails(employee.id, gridItem);
+
+        const img = document.createElement('img');
+        img.alt = 'Employee Photo';
+        img.width = 100;
+        img.src = employee.photo ? `data:image/jpeg;base64,${employee.photo}` : '/static/images/noProfile.jpg';
+
+        const employeeInfo = document.createElement('div');
+        employeeInfo.classList.add('employee-info');
+
+        const employeeName = document.createElement('p');
+        employeeName.classList.add('employee-name');
+        employeeName.textContent = `${employee.fname} ${employee.lname}`;
+
+        const employeeCompany = document.createElement('p');
+        employeeCompany.classList.add('employee-company');
+        employeeCompany.textContent = employee.company;
+
+        employeeInfo.appendChild(employeeName);
+        employeeInfo.appendChild(employeeCompany);
+
+        const employeeColor = document.createElement('div');
+        employeeColor.classList.add('employee-color');
+        employeeColor.style.backgroundColor = employee.color;
+
+        gridItem.appendChild(img);
+        gridItem.appendChild(employeeInfo);
+        gridItem.appendChild(employeeColor);
+
+        employeeGrid.appendChild(gridItem);
+    });
+}
+
+function updatePaginationButtons() {
+    const totalPages = Math.ceil(totalEmployees / itemsPerPage);
+    const paginationButtons = document.getElementById('pagination-buttons');
+    paginationButtons.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement('button');
+        button.textContent = i;
+        button.onclick = () => changePage(i);
+        button.className = 'page-button';
+        if (i === currentPage) {
+            button.classList.add('active');
+        }
+        paginationButtons.appendChild(button);
+    }
+
+    document.getElementById('prev-page').disabled = currentPage === 1;
+    document.getElementById('next-page').disabled = currentPage === totalPages;
+}
+
+function changePage(page) {
+    if (page === 'prev' && currentPage > 1) {
+        currentPage--;
+    } else if (page === 'next' && currentPage < Math.ceil(totalEmployees / itemsPerPage)) {
+        currentPage++;
+    } else if (typeof page === 'number') {
+        currentPage = page;
+    }
+    filterEmployees();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('company-filter-form');
+    form.addEventListener('change', filterEmployees(true));
+
+    const searchBox = document.getElementById('search-box');
+    searchBox.addEventListener('input', filterEmployees(true));
+    
+    filterEmployees();
+});
 
 function toggleSort() {
     sortState = (sortState + 1) % 3;
@@ -92,11 +152,11 @@ function toggleSort() {
         sortIcon.src = "/static/images/sort-desc.png";
     }
 
-    filterUsers();
+    filterEmployees();
 }
 
-function showDetails(userId, boxElement) {
-    currentUserId = userId;
+function showDetails(employeeId, boxElement) {
+    currentEmployeeId = employeeId;
 
     if (selectedBox) {
         selectedBox.classList.remove('selected');
@@ -108,30 +168,30 @@ function showDetails(userId, boxElement) {
     document.querySelector('.grid-container').style.gridTemplateColumns = 'repeat(2, 1fr)';
     document.querySelector('.grid-container').style.width = '55%';
 
-    fetch(`/user/${userId}`)
+    fetch(`/employee/${employeeId}`)
         .then(response => response.json())
-        .then(user => {
-            document.getElementById('details-name').innerText = `${user.fname} ${user.lname}`;
-            document.getElementById('details-name').style.color = user.color;
-            document.getElementById('details-company').innerText = user.company;
-            document.getElementById('details-address').innerText = user.address;
-            document.getElementById('details-city').innerText = user.city;
-            document.getElementById('details-county').innerText = user.county;
-            document.getElementById('details-color').style.backgroundColor = user.color;
-            if (user.photo) {
-                const photoData = `data:image/jpeg;base64,${user.photo}`;
+        .then(employee => {
+            document.getElementById('details-name').innerText = `${employee.fname} ${employee.lname}`;
+            document.getElementById('details-name').style.color = employee.color;
+            document.getElementById('details-company').innerText = employee.company;
+            document.getElementById('details-address').innerText = employee.address;
+            document.getElementById('details-city').innerText = employee.city;
+            document.getElementById('details-county').innerText = employee.county;
+            document.getElementById('details-color').style.backgroundColor = employee.color;
+            if (employee.photo) {
+                const photoData = `data:image/jpeg;base64,${employee.photo}`;
                 document.getElementById('details-photo').src = photoData;
             }
             else{
                 document.getElementById('details-photo').src = "/static/images/noProfile.jpg"
             }
-            document.getElementById('user-details').style.display = 'flex';
-            document.getElementById('user-details').style.borderColor = user.color;
+            document.getElementById('employee-details').style.display = 'flex';
+            document.getElementById('employee-details').style.borderColor = employee.color;
         });
 }
 
 function closeDetails() {
-    document.getElementById('user-details').style.display = 'none';
+    document.getElementById('employee-details').style.display = 'none';
 
     if (selectedBox) {
         selectedBox.classList.remove('selected');
@@ -150,7 +210,7 @@ function closeDeleteModal() {
 }
 
 function deleteEmployee() {
-    fetch(`/delete_user/${currentUserId}`, {
+    fetch(`/delete_employee/${currentEmployeeId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -163,22 +223,22 @@ function deleteEmployee() {
             closeDetails();
             location.reload();
         } else {
-            alert('Error deleting user');
+            alert('Error deleting employee');
         }
     });
 }
 
 function showEditModal() {
-    fetch(`/user/${currentUserId}`)
+    fetch(`/employee/${currentEmployeeId}`)
     .then(response => response.json())
-    .then(user => {
-        document.getElementById('edit-user-id').value = user.id;
-        document.getElementById('edit-fname').value = user.fname;
-        document.getElementById('edit-lname').value = user.lname;
-        document.getElementById('edit-address').value = user.address;
-        document.getElementById('edit-city').value = user.city;
-        document.getElementById('edit-county').value = user.county;
-        document.getElementById('edit-company').value = user.company;
+    .then(employee => {
+        document.getElementById('edit-employee-id').value = employee.id;
+        document.getElementById('edit-fname').value = employee.fname;
+        document.getElementById('edit-lname').value = employee.lname;
+        document.getElementById('edit-address').value = employee.address;
+        document.getElementById('edit-city').value = employee.city;
+        document.getElementById('edit-county').value = employee.county;
+        document.getElementById('edit-company').value = employee.company;
     
         document.getElementById('edit-employee-modal').style.display = 'block';
     });
@@ -187,6 +247,13 @@ function showEditModal() {
 function closeEditModal() {
     document.getElementById('edit-employee-modal').style.display = 'none';
     document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+}
+function showEditConfirmationModal() {
+    document.getElementById('edit-confirmation-modal').style.display = 'block';
+}
+
+function closeEditConfirmationModal() {
+    document.getElementById('edit-confirmation-modal').style.display = 'none';
 }
 
 function saveEmployeeChanges() {
@@ -213,7 +280,7 @@ function saveEmployeeChanges() {
 
     formData.append('color', companyColors[formData.get('company')]);
 
-    fetch('/update_user', {
+    fetch('/update_employee', {
         method: 'POST',
         body: formData
     })
@@ -229,15 +296,15 @@ function saveEmployeeChanges() {
 }
 
 function shareEmployee() {
-    const userName = document.getElementById('details-name').innerText;
-    const userCompany = document.getElementById('details-company').innerText;
-    const userAddress = document.getElementById('details-address').innerText;
-    const userCity = document.getElementById('details-city').innerText;
-    const userCounty = document.getElementById('details-county').innerText;
+    const employeeName = document.getElementById('details-name').innerText;
+    const employeeCompany = document.getElementById('details-company').innerText;
+    const employeeAddress = document.getElementById('details-address').innerText;
+    const employeeCity = document.getElementById('details-city').innerText;
+    const employeeCounty = document.getElementById('details-county').innerText;
 
-    const userDetails = `Name: ${userName}\nCompany: ${userCompany}\nAddress: ${userAddress}\nCity: ${userCity}\nCounty: ${userCounty}`;
+    const employeeDetails = `Name: ${employeeName}\nCompany: ${employeeCompany}\nAddress: ${employeeAddress}\nCity: ${employeeCity}\nCounty: ${employeeCounty}`;
 
-    navigator.clipboard.writeText(userDetails).then(() => {
+    navigator.clipboard.writeText(employeeDetails).then(() => {
         alert('Employee details copied to clipboard');
     }).catch(err => {
         console.error('Error copying text: ', err);
@@ -277,7 +344,7 @@ function submitAddEmployee() {
 
     formData.append('color', companyColors[formData.get('company')]);
 
-    fetch('/add_user', {
+    fetch('/add_employee', {
         method: 'POST',
         body: formData
     }).then(response => response.json())

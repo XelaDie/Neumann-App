@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Signup</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-form">
+            <h2>Confirm Signup</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color: {{ 'red' if message.category == 'error' else 'green' }};">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            <form action="{{ url_for('confirm') }}" method="POST">
+                <div class="form-group">
+                    <label for="code">Enter confirmation code:</label>
+                    <input type="text" id="code" name="code" required>
+                </div>
+                <button type="submit" class="btn">Confirm</button>
+            </form>
+            <p style="font-size: 0.7em; color: #d6d6d6a1;">For security purposes, we've sent a confirmation code to your email address. If you don't see it in your inbox, please check your spam folder.</p>
+            {% if error %}
+            <p style="color: red;">{{ error }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

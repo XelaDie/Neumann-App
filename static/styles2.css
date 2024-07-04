@@ -1,0 +1,118 @@
+body {
+    font-family: 'Mulish', sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.login-container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    width: -webkit-fill-available;
+    text-align: -webkit-center;
+}
+
+.login-form {
+    max-width: 400px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.login-form h2 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input[type="text"], 
+.form-group input[type="password"], 
+.form-group input[type="email"], 
+input[type="email" i] {
+    width: 100%;
+    padding: 0.5rem;
+    border-color: lightslategray;
+    border-style: groove;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+
+.form-group .forgot-password {
+    float: right;
+    color: #fff;
+    text-decoration: none;
+    margin-bottom: 1em;
+}
+
+.form-group .forgot-password:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    background: #764ba2;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn:hover {
+    background: #667eea;
+}
+
+.login-form p {
+    color: #fff;
+    text-align: center;
+}
+
+.login-form a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.login-form a:hover {
+    text-decoration: underline;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    font-size: 20px;
+    cursor: pointer;
+}

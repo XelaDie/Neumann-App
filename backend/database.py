@@ -3,6 +3,15 @@ import os
 
 _user = "root"
 _password = "P@$$w0rd_"
+db_name = "mydb"
+
+def get_connection():
+    return mysql.connector.connect(
+        host="localhost",
+        user=_user,
+        password=_password,
+        database="mydb"
+    )
 
 def convert_to_binary_data(filename):
     with open(os.path.join(os.path.dirname(__file__), '..', 'static', 'images', filename), 'rb') as file:
@@ -17,7 +26,6 @@ mydb = mysql.connector.connect(
 
 cursor = mydb.cursor()
 
-db_name = "mydb"
 cursor.execute(f"SHOW DATABASES LIKE '{db_name}'")
 database_exists = cursor.fetchone()
 
@@ -37,10 +45,16 @@ mydb = mysql.connector.connect(
 
 cursor = mydb.cursor()
 
-cursor.execute("SHOW TABLES LIKE 'users'")
-table_exists = cursor.fetchone()
+cursor.execute("SHOW TABLES LIKE 'Employees'")
+Employees_exists = cursor.fetchone()
 
-if not table_exists:
+cursor.execute("SHOW TABLES LIKE 'Companies'")
+Companies_exists = cursor.fetchone()
+
+cursor.execute("SHOW TABLES LIKE 'Users'")
+Users_exists = cursor.fetchone()
+
+if not Employees_exists or not Companies_exists or not Users_exists:
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Companies (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -50,7 +64,7 @@ if not table_exists:
     """)
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS Users (
+    CREATE TABLE IF NOT EXISTS Employees (
         id INT AUTO_INCREMENT PRIMARY KEY,
         fname VARCHAR(255),
         lname VARCHAR(255),
@@ -64,6 +78,19 @@ if not table_exists:
     );
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL
+    );
+    """)
+    
+    cursor.execute("""
+    TRUNCATE TABLE Employees;
+    """)
+    
     companies = [
         ('Benton', '#8bc447'),
         ('Chanay', '#8a3b93'),
@@ -78,7 +105,7 @@ if not table_exists:
     cursor.execute("SELECT id, name FROM Companies")
     company_dict = {name: company_id for company_id, name in cursor.fetchall()}
 
-    users = [
+    employees = [
         ('James', 'Butt', company_dict['Benton'], '6649 N Blue Gum St', 'New Orleans', 'Orleans', '#8bc447', convert_to_binary_data('james-butt.jpg')),
         ('Josephine', 'Darakjy', company_dict['Chanay'], '4 B Blue Ridge Blvd', 'Brighton', 'Livingston', '#8a3b93', None),
         ('Art', 'Venere', company_dict['Chemel'], '8 W Cerritos Ave', 'Bridgeport', 'Gloucester', '#1473bb', None),
@@ -97,9 +124,13 @@ if not table_exists:
     ]
 
     cursor.executemany("""
-    INSERT INTO Users (fname, lname, company_id, address, city, county, color, photo)
+    INSERT IGNORE INTO Employees (fname, lname, company_id, address, city, county, color, photo)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, users)
+    """, employees)
     mydb.commit()
-
+    print("Successfully created tables")
+    
+else: print("Tables already exist")
+    
 cursor.close()
+mydb.close()

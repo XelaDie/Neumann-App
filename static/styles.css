@@ -9,6 +9,10 @@ header {
     border-bottom: 1px solid #ddd;
 }
 
+body.hidden-content main, body.hidden-content header {
+    display: none;
+}
+
 .header-top-bar {
     height: 5px;
     background: linear-gradient(to right, #D9E14E, #87C148, #8EBEAE, #71B3CD, #1774BA, #83388D, #C02583);
@@ -30,6 +34,20 @@ header {
 
 .navigation a:hover {
     color: #000;
+}
+
+.logout-button {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.logout-button:hover {
+    background-color: #e60000;
 }
 
 .loading-screen {
@@ -167,7 +185,7 @@ main {
     background-color: #ccc;
 }
 
-.user-filter {
+.employee-filter {
     padding-left: 3%;
     position: absolute;
     top: 120px;
@@ -175,7 +193,7 @@ main {
     width: 15%;
 }
 
-.user-details {
+.employee-details {
     position: fixed;
     top: 75px;
     right: 0;
@@ -189,12 +207,12 @@ main {
     flex-direction: column;
 }
 
-.user-details .content {
+.employee-details .content {
     flex: 1;
     overflow-y: auto;
 }
 
-.user-details .employee-color-detail {
+.employee-details .employee-color-detail {
     position: absolute;
     top: 0;
     right: 0;
@@ -323,4 +341,44 @@ main {
     color: red;
     font-size: 0.9em;
     margin-left: 10px;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+}
+
+.page-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+
+.page-button:hover {
+    background-color: #ccc;
+}
+
+.page-button.active {
+    background-color: #666;
+    color: white;
+}
+
+#prev-page,
+#next-page {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+}
+
+#prev-page:disabled,
+#next-page:disabled {
+    cursor: not-allowed;
+    background-color: #e0e0e0;
 }

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body class='hidden-content'>
     <div class="loading-screen" id="loading-screen">
         <img src="{{ url_for('static', filename='images/loader.gif') }}" alt="Loading..." width="100">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Implify" width="100">
@@ -21,6 +21,7 @@
                 <a href="#">Our Products</a>
                 <a href="#">Our Services</a>
                 <a href="#">Contact Us</a>
+                <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
             </nav>
         </div>
     </header>

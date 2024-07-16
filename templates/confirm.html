@@ -13,7 +13,7 @@
             <h2>Confirm Signup</h2>
             {% if messages %}
                 {% for message in messages %}
-                    <p style="color: {{ 'red' if message.category == 'error' else 'green' }};">{{ message }}</p>
+                    <p style="color: {{ 'red' if message[0] == "error" else 'green' }}; font-size: 0.9em; margin: 0;">{{ message[1] }}</p>
                 {% endfor %}
             {% endif %}
             <form action="{{ url_for('confirm') }}" method="POST">

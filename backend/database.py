@@ -1,5 +1,6 @@
 import mysql.connector
 import os
+from werkzeug.security import generate_password_hash
 
 _user = "root"
 _password = "P@$$w0rd_"
@@ -25,6 +26,8 @@ mydb = mysql.connector.connect(
 )
 
 cursor = mydb.cursor()
+
+cursor.execute(f"DROP DATABASE {db_name}") #Delete this after first run
 
 cursor.execute(f"SHOW DATABASES LIKE '{db_name}'")
 database_exists = cursor.fetchone()
@@ -127,6 +130,14 @@ if not Employees_exists or not Companies_exists or not Users_exists:
     INSERT IGNORE INTO Employees (fname, lname, company_id, address, city, county, color, photo)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """, employees)
+    
+    password = generate_password_hash("admin", method='pbkdf2:sha256')
+    
+    cursor.execute(f"""
+    INSERT IGNORE INTO Users (username, email, password)
+    VALUES ('admin', 'admin@example.com', '{password}')
+    """)
+    
     mydb.commit()
     print("Successfully created tables")
     

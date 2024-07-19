@@ -4,14 +4,6 @@
 
 A web application to manage employee information.
 
-## Features
-
-- Add New Employee
-- Edit Employee Details
-- Delete Employee
-- Filter Employees by Company
-- View Employee Details
-
 ## Installation
 
 1. Clone the repository.

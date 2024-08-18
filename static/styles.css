@@ -230,6 +230,7 @@ main {
 }
 
 #details-name {
+    margin-top: 15px;
     font-size: 1.5em;
     color: #000;
 }
@@ -240,11 +241,10 @@ main {
     margin-block-start: -1em;
 }
 
-#details-address,
-#details-city,
-#details-county {
+.detail {
     color: gray;
     margin-block-start: -1em;
+    font-weight: normal;
 }
 
 .edit-link {
@@ -254,7 +254,6 @@ main {
     text-align: right;
     display: block;
     margin-top: auto;
-    margin-bottom: 10px;
 }
 
 .edit-link:hover {

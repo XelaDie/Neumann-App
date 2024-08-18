@@ -77,10 +77,17 @@ if not Employees_exists or not Companies_exists or not Users_exists:
         county VARCHAR(255),
         color VARCHAR(255),
         photo BLOB,
+        gps_location VARCHAR(255),
+        date_account_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        salary DECIMAL(10, 2),
+        date_of_birth DATE,
+        job_title VARCHAR(255),
+        employment_status ENUM('active', 'suspended'),
+        isDeleted BOOLEAN DEFAULT FALSE,
         CONSTRAINT fk_company FOREIGN KEY (company_id) REFERENCES Companies(id)
     );
     """)
-
+    
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS Users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -109,26 +116,26 @@ if not Employees_exists or not Companies_exists or not Users_exists:
     company_dict = {name: company_id for company_id, name in cursor.fetchall()}
 
     employees = [
-        ('James', 'Butt', company_dict['Benton'], '6649 N Blue Gum St', 'New Orleans', 'Orleans', '#8bc447', convert_to_binary_data('james-butt.jpg')),
-        ('Josephine', 'Darakjy', company_dict['Chanay'], '4 B Blue Ridge Blvd', 'Brighton', 'Livingston', '#8a3b93', None),
-        ('Art', 'Venere', company_dict['Chemel'], '8 W Cerritos Ave', 'Bridgeport', 'Gloucester', '#1473bb', None),
-        ('Lenna', 'Paprocki', company_dict['Feltz Printing'], '639 Main St', 'Anchorage', 'Anchorage', '#c32482', None),
-        ('Donette', 'Foller', company_dict['Feltz Printing'], '34 Center St', 'Hamilton', 'Butler', '#c32482', None),
-        ('Simona', 'Morasca', company_dict['Chanay'], '3 Mcauley Dr', 'Ashland', 'Ashland', '#8a3b93', None),
-        ('Mitsue', 'Tollner', company_dict['Benton'], '7 Eads St', 'Chicago', 'Cook', '#8bc447', None),
-        ('Leota', 'Dilliard', company_dict['Commercial Press'], '7 W Jackson Blvd', 'San Jose', 'Santa Clara', '#dde553', None),
-        ('Sage', 'Wieser', company_dict['Feltz Printing'], '5 Boston Ave #88', 'Sioux Falls', 'Minnehaha', '#c32482', convert_to_binary_data('sage-weiser.jpg')),
-        ('Kris', 'Marrier', company_dict['Feltz Printing'], '228 Runamuck Pl #2808', 'Baltimore', 'Baltimore', '#c32482', None),
-        ('Minna', 'Amigon', company_dict['Chanay'], '2371 Jerrold Ave', 'Kulpsville', 'Montgomery', '#8a3b93', convert_to_binary_data('minna-amigon.jpg')),
-        ('Abel', 'Maclead', company_dict['Chemel'], '37275 St Rt 17m M', 'Middle Island', 'Suffolk', '#1473bb', None),
-        ('Kiley', 'Caldarera', company_dict['Chemel'], '25 E 75th St #69', 'Los Angeles', 'Los Angeles', '#1473bb', None),
-        ('Bette', 'Ruta', company_dict['Benton'], '98 Connecticut Ave Nw', 'Chagrin Falls', 'Geauga', '#8bc447', None),
-        ('Veronika', 'Albares', company_dict['Benton'], '56 E Morehead St', 'Laredo', 'Webb', '#8bc447', None)
+        ('James', 'Butt', company_dict['Benton'], 'Times Square', 'New York City', 'New York', '#8bc447', convert_to_binary_data('james-butt.jpg'), '40.7589, -73.9851', '2022-01-01', 55000.00, '1980-05-15', 'Software Engineer', 'active'),
+        ('Josephine', 'Darakjy', company_dict['Chanay'], 'Golden Gate Bridge', 'San Francisco', 'California', '#8a3b93', None, '37.8003, -122.4804', '2022-02-10', 60000.00, '1985-06-20', 'Project Manager', 'active'),
+        ('Art', 'Venere', company_dict['Chemel'], 'White House', 'Washington', 'Washington DC', '#1473bb', None, '38.8951, -77.0367', '2021-12-15', 47000.00, '1990-08-12', 'Designer', 'active'),
+        ('Lenna', 'Paprocki', company_dict['Feltz Printing'], 'Grand Canyon National Park', 'Arizona', 'Arizona', '#c32482', None, '36.1069, -112.1129', '2021-11-10', 52000.00, '1983-04-05', 'Marketing Specialist', 'active'),
+        ('Donette', 'Foller', company_dict['Feltz Printing'], 'Walt Disney World', 'Orlando', 'Florida', '#c32482', None, '28.3816, -81.5784', '2021-10-20', 48000.00, '1991-07-22', 'Sales Associate', 'suspended'),
+        ('Simona', 'Morasca', company_dict['Chanay'], 'Empire State Building', 'New York City', 'New York', '#8a3b93', None, '40.7484, -73.9857', '2022-03-05', 45000.00, '1987-12-14', 'HR Manager', 'active'),
+        ('Mitsue', 'Tollner', company_dict['Benton'], 'Yellowstone National Park', 'Wyoming', 'Wyoming', '#8bc447', None, '44.4392, -110.5908', '2022-04-25', 62000.00, '1978-01-30', 'Data Analyst', 'active'),
+        ('Leota', 'Dilliard', company_dict['Commercial Press'], 'Yosemite National Park', 'California', 'California', '#dde553', None, '37.8615, -119.5675', '2022-05-15', 57000.00, '1982-06-17', 'Quality Assurance', 'suspended'),
+        ('Sage', 'Wieser', company_dict['Feltz Printing'], 'Niagara Falls', 'New York', 'New York', '#c32482', convert_to_binary_data('sage-weiser.jpg'), '43.0845, -79.0754', '2021-06-12', 53000.00, '1989-09-23', 'IT Support', 'active'),
+        ('Kris', 'Marrier', company_dict['Feltz Printing'], 'Mount Rushmore', 'Keystone', 'South Dakota', '#c32482', None, '43.8751, -103.4648', '2021-07-07', 49000.00, '1984-11-19', 'Operations Manager', 'active'),
+        ('Minna', 'Amigon', company_dict['Chanay'], 'Lincoln Memorial', 'Washington', 'Washington DC', '#8a3b93', convert_to_binary_data('minna-amigon.jpg'), '38.8889, -77.0302', '2021-08-22', 61000.00, '1977-02-13', 'Finance Manager', 'active'),
+        ('Abel', 'Maclead', company_dict['Chemel'], 'The Strip', 'Las Vegas', 'Nevada', '#1473bb', None, '36.1147, -115.1728', '2022-06-20', 58000.00, '1988-03-09', 'Consultant', 'active'),
+        ('Kiley', 'Caldarera', company_dict['Chemel'], 'Alcatraz Island', 'San Francisco', 'California', '#1473bb', None, '37.8267, -122.4230', '2022-07-18', 60000.00, '1993-10-01', 'Product Manager', 'active'),
+        ('Bette', 'Ruta', company_dict['Benton'], 'Willis Tower', 'Chicago', 'Illinois', '#8bc447', None, '41.8781, -87.6298', '2021-09-15', 55000.00, '1981-12-25', 'Administrator', 'suspended'),
+        ('Veronika', 'Albares', company_dict['Benton'], 'The Alamo', 'San Antonio', 'Texas', '#8bc447', None, '29.4241, -98.4852', '2021-11-30', 54000.00, '1986-08-08', 'Developer', 'active')
     ]
 
     cursor.executemany("""
-    INSERT IGNORE INTO Employees (fname, lname, company_id, address, city, county, color, photo)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT IGNORE INTO Employees (fname, lname, company_id, address, city, county, color, photo, gps_location, date_account_created, salary, date_of_birth, job_title, employment_status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, employees)
     
     password = generate_password_hash("admin", method='pbkdf2:sha256')
@@ -136,6 +143,38 @@ if not Employees_exists or not Companies_exists or not Users_exists:
     cursor.execute(f"""
     INSERT IGNORE INTO Users (username, email, password)
     VALUES ('admin', 'admin@example.com', '{password}')
+    """)
+    
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Projects (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        start_date DATE,
+        end_date DATE,
+        budget DECIMAL(10, 2),
+        time_estimation INT
+    );
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ProjectCompanies (
+        project_id INT,
+        company_id INT,
+        PRIMARY KEY (project_id, company_id),
+        FOREIGN KEY (project_id) REFERENCES Projects(id),
+        FOREIGN KEY (company_id) REFERENCES Companies(id)
+    );
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ProjectEmployees (
+        project_id INT,
+        employee_id INT,
+        PRIMARY KEY (project_id, employee_id),
+        FOREIGN KEY (project_id) REFERENCES Projects(id),
+        FOREIGN KEY (employee_id) REFERENCES Employees(id)
+    );
     """)
     
     mydb.commit()

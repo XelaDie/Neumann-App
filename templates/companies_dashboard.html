@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+crossorigin=""></script>
+<div>
+    <h1>Companies Dashboard</h1>
+    <button onclick="showAddCompanyModal()">Add Company</button>
+    <hr>
+    {% for company in companies %}
+    <div class="company-row">
+        <span style="color: {{ company.color }}; font-size: 1.4em; font-weight: bold">{{ company.name }}</span>
+        <p>Number of Employees: {{ company_stats[company.id].employee_count }}</p>
+        <div id="map-{{ company.id }}" class="company-map" data-locations="{{ company_stats[company.id].gps_locations }}" style="height: 50vh; width: 80vh; margin: 20px 20px 20px 150px"></div>
+        <button onclick="showEditCompanyModal('{{ company.id }}', '{{ company.name }}', '{{ company.color }}')">Edit</button>
+        <button onclick="showDeleteCompanyModal('{{ company.id }}')">Delete</button>
+    </div>
+    <hr>
+    {% endfor %}
+</div>
+
+<div id="add-company-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAddCompanyModal()">&times;</span>
+        <form onsubmit="submitAddCompanyForm(event)">
+            <label for="add-company-name">Name:</label>
+            <input type="text" id="add-company-name" name="name" required maxlength="50">
+            <input type="color" id="add-company-color" name="color" required>
+            <div id="add-company-error" class="error-message"></div>
+            <button type="submit">Add Company</button>
+        </form>
+    </div>
+</div>
+
+<div id="edit-company-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditCompanyModal()">&times;</span>
+        <form onsubmit="submitEditCompanyForm(event)">
+            <input type="hidden" id="edit-company-id" name="id">
+            <label for="edit-company-name">Name:</label>
+            <input type="text" id="edit-company-name" name="name" required maxlength="50">
+            <input type="color" id="edit-company-color" name="color" required>
+            <div id="edit-company-error" class="error-message"></div>
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<div id="delete-company-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteCompanyModal()">&times;</span>
+        <p>Are you sure you want to delete this company and all its employees?</p>
+        <form action="{{ url_for('delete_company_route') }}" method="POST">
+            <input type="hidden" id="delete-company-id" name="id">
+            <button type="submit">Yes</button>
+            <button type="button" onclick="closeDeleteCompanyModal()">No</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.company-map').forEach(mapElement => {
+            const locations = mapElement.dataset.locations.split(',');
+            const map = L.map(mapElement).setView([39.8283, -98.5795], 4);
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            
+            for (let i = 0; i < locations.length-2; i = i+3) {
+                const [lat, lng, name] = [locations[i], locations[i+1], locations[i+2]];
+                const marker = new L.marker([parseFloat(lat), parseFloat(lng)]).addTo(map);
+                marker.bindPopup(name);
+            }
+
+            setTimeout(function () {
+                map.invalidateSize(true);
+            }, 500);
+        });
+    });
+</script>
+{% endblock %}

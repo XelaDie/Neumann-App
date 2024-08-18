@@ -1,4 +1,13 @@
 from .database import get_connection
+from .company_management import fetch_company_by_name
+from geopy.geocoders import Nominatim
+
+def get_gps_location(address):
+    geolocator = Nominatim(user_agent="employee_management")
+    try: 
+        location = geolocator.geocode(address)
+        return f"{location.latitude},{location.longitude}"
+    except: return None
 
 def fetch_employees(companies=None, search_text='', sort_state=0, page=1, items_per_page=10):
     mydb = get_connection()
@@ -7,7 +16,7 @@ def fetch_employees(companies=None, search_text='', sort_state=0, page=1, items_
     SELECT Employees.id, Employees.fname, Employees.lname, Companies.name as company, Employees.photo, Employees.color 
     FROM Employees 
     JOIN Companies ON Employees.company_id = Companies.id 
-    WHERE 1=1
+    WHERE Employees.isDeleted = FALSE
     """
     params = []
 
@@ -18,7 +27,7 @@ def fetch_employees(companies=None, search_text='', sort_state=0, page=1, items_
 
     if search_text:
         query += " AND (LOWER(Employees.fname) LIKE %s OR LOWER(Employees.lname) LIKE %s)"
-        params.extend([f"{search_text}%", f"{search_text}%"])
+        params.extend([f"%{search_text}%", f"%{search_text}%"])
 
     if sort_state == 1:
         query += " ORDER BY Employees.fname ASC, Employees.lname ASC"
@@ -39,73 +48,45 @@ def fetch_employees(companies=None, search_text='', sort_state=0, page=1, items_
     mydb.close()
     return employees, total_employees
 
-def fetch_companies():
-    mydb = get_connection()
-    cursor = mydb.cursor(dictionary=True)
-    cursor.execute("SELECT id, name, color FROM Companies")
-    companies = cursor.fetchall()
-    cursor.close()
-    mydb.close()
-    return companies
-
-def add_company(name, color):
-    mydb = get_connection()
-    cursor = mydb.cursor()
-    cursor.execute("INSERT INTO Companies (name, color) VALUES (%s, %s)", (name, color))
-    mydb.commit()
-    cursor.close()
-    mydb.close()
-
-def update_company(company_id, name, color):
-    mydb = get_connection()
-    cursor = mydb.cursor()
-    cursor.execute("UPDATE Companies SET name = %s, color = %s WHERE id = %s", (name, color, company_id))
-    cursor.execute("UPDATE Employees SET color = %s WHERE company_id = %s", (color, company_id))
-    mydb.commit()
-    cursor.close()
-    mydb.close()
-
-def fetch_company_by_name(name):
-    mydb = get_connection()
-    cursor = mydb.cursor(dictionary=True)
-    cursor.execute("SELECT id, color FROM Companies WHERE name = %s", (name,))
-    company = cursor.fetchone()
-    cursor.close()
-    mydb.close()
-    return company
-
-def delete_company(company_id):
-    mydb = get_connection()
-    cursor = mydb.cursor()
-    cursor.execute("DELETE FROM Employees WHERE company_id = %s", (company_id,))
-    cursor.execute("DELETE FROM Companies WHERE id = %s", (company_id,))
-    mydb.commit()
-    cursor.close()
-    mydb.close()
-
 def fetch_employee_details(employee_id):
-    mydb = get_connection()
-    cursor = mydb.cursor(dictionary=True)
-    cursor.execute("""
-    SELECT Employees.id, Employees.fname, Employees.lname, Companies.name as company, Employees.address, Employees.city, Employees.county, Employees.color, Employees.photo 
-    FROM Employees 
-    JOIN Companies ON Employees.company_id = Companies.id 
-    WHERE Employees.id = %s
-    """, (employee_id,))
-    employee = cursor.fetchone()
-    cursor.close()
-    mydb.close()
-    return employee
+  mydb = get_connection()
+  cursor = mydb.cursor(dictionary=True)
+  cursor.execute("""
+  SELECT 
+      Employees.id, 
+      Employees.fname, 
+      Employees.lname, 
+      Companies.name as company, 
+      Employees.address, 
+      Employees.city,
+      Employees.county, 
+      Employees.color,
+      Employees.photo,
+      Employees.gps_location,
+      DATE_FORMAT(Employees.date_account_created, '%d %b %Y') as date_account_created,
+      Employees.salary,
+      DATE_FORMAT(Employees.date_of_birth, '%d %b %Y') as date_of_birth,
+      Employees.job_title,
+      Employees.employment_status
+  FROM Employees 
+  JOIN Companies ON Employees.company_id = Companies.id 
+  WHERE Employees.id = %s
+  """, (employee_id,))
+  employee = cursor.fetchone()
+  cursor.close()
+  mydb.close()
+  return employee
 
 def delete_employee(employee_id):
     mydb = get_connection()
     cursor = mydb.cursor()
-    cursor.execute("DELETE FROM Employees WHERE id = %s", (employee_id,))
+    cursor.execute("UPDATE Employees SET isDeleted = TRUE WHERE id = %s", (employee_id,))
     mydb.commit()
     cursor.close()
     mydb.close()
     
-def update_employee(employee_id, fname, lname, company, address, city, county, color, photo):
+def update_employee(employee_id, fname, lname, company, address, city, county, color, photo, salary, date_of_birth, job_title, employment_status):
+    gps_location = get_gps_location(f"{county}, {city}, {address}")
     mydb = get_connection()
     cursor = mydb.cursor()
     company_data = fetch_company_by_name(company)
@@ -115,19 +96,21 @@ def update_employee(employee_id, fname, lname, company, address, city, county, c
         photo_data = photo.read()
         cursor.execute("""
             UPDATE Employees
-            SET fname = %s, lname = %s, company_id = %s, address = %s, city = %s, county = %s, color = %s, photo = %s
+            SET fname = %s, lname = %s, company_id = %s, address = %s, city = %s, county = %s, color = %s, photo = %s, gps_location= %s, salary = %s, date_of_birth = %s, job_title = %s, employment_status = %s
             WHERE id = %s
-        """, (fname, lname, company_id, address, city, county, company_color, photo_data, employee_id))
+        """, (fname, lname, company_id, address, city, county, company_color, photo_data, gps_location, salary, date_of_birth, job_title, employment_status, employee_id))
     else:
         cursor.execute("""
             UPDATE Employees
-            SET fname = %s, lname = %s, company_id = %s, address = %s, city = %s, county = %s, color = %s
+            SET fname = %s, lname = %s, company_id = %s, address = %s, city = %s, county = %s, color = %s, gps_location= %s, salary = %s, date_of_birth = %s, job_title = %s, employment_status = %s
             WHERE id = %s
-        """, (fname, lname, company_id, address, city, county, company_color, employee_id))
+        """, (fname, lname, company_id, address, city, county, company_color, gps_location, salary, date_of_birth, job_title, employment_status, employee_id))
     mydb.commit()
     cursor.close()
+    mydb.close()
 
-def add_employee(fname, lname, company, address, city, county, color, photo):
+def add_employee(fname, lname, company, address, city, county, color, photo, salary, date_of_birth, job_title, employment_status):
+    gps_location = get_gps_location(f"{county}, {city}, {address}")
     mydb = get_connection()
     cursor = mydb.cursor()
     company_data = fetch_company_by_name(company)
@@ -136,14 +119,14 @@ def add_employee(fname, lname, company, address, city, county, color, photo):
     if photo:
         photo_data = photo.read()
         cursor.execute("""
-            INSERT INTO Employees (fname, lname, company_id, address, city, county, color, photo)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (fname, lname, company_id, address, city, county, company_color, photo_data))
+            INSERT INTO Employees (fname, lname, company_id, address, city, county, color, photo, gps_location, salary, date_of_birth, job_title, employment_status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (fname, lname, company_id, address, city, county, company_color, photo_data, gps_location, salary, date_of_birth, job_title, employment_status))
     else:
         cursor.execute("""
-            INSERT INTO Employees (fname, lname, company_id, address, city, county, color)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (fname, lname, company_id, address, city, county, company_color))
+            INSERT INTO Employees (fname, lname, company_id, address, city, county, color, gps_location, salary, date_of_birth, job_title, employment_status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (fname, lname, company_id, address, city, county, company_color, gps_location, salary, date_of_birth, job_title, employment_status))
     mydb.commit()
     cursor.close()
     mydb.close()

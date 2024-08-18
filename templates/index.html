@@ -16,9 +16,7 @@
         <input type="checkbox" id="company-{{ company.name }}" name="company" value="{{ company.name }}">
         <label for="company-{{ company.name }}">{{ company.name }}</label><br>
         {% endfor %}
-    </form> <br>
-    <button onclick="showManageCompaniesModal()" style="margin: 10px; padding: 5px 20px; font-size: 1em; cursor: pointer">
-        Manage Companies</button>
+    </form>
 </div>
 
 <div class="grid-container">
@@ -48,13 +46,18 @@
     <div class="employee-color-detail" id="details-color"></div>
     <div class="content">
         <span class="close-btn" onclick="closeDetails();">&times;</span>
-        <img id="details-photo" src="/static/images/noProfile.jpg" alt="Employee Photo" width="150">
+        <img id="details-photo" src="/static/images/noProfile.jpg" alt="Employee Photo" width="130">
         <h3 id="details-name"></h3>
         <p id="details-company"></p>
+        <p style="font-weight: bold; margin-top: -1em" id="details-job_title"></p>
+        <p style="font-weight: bold;">Employment Status: <span class="detail" id="details-employment_status"></span></p>
+        <p style="font-weight: bold;">Salary: <span class="detail" id="details-salary"></span></p>
+        <p style="font-weight: bold;">Date of birth: <span class="detail" id="details-date_of_birth"></span></p>
         <p style="font-weight: bold;">Address:</p>
-        <p id="details-address"></p>
-        <p id="details-city"></p>
-        <p id="details-county"></p>
+        <p class="detail" id="details-address"></p>
+        <p class="detail" id="details-city"></p>
+        <p class="detail" id="details-county"></p>
+        <p style="font-weight: bold;">Date Account Created: <span class="detail" id="details-date_account_created"></span></p>
     </div>
     <a class="edit-link" onclick="shareEmployee();">Share</a>
     <a class="edit-link" onclick="showEditModal()">Edit</a>
@@ -90,6 +93,21 @@
                 {% endfor %}
             </select>
             <span class="error-message" id="edit-company-error"></span> <br>
+            <label for="edit-job_title">Job Title:</label>
+            <input type="text" id="edit-job_title" name="job_title" required maxlength="50">
+            <span class="error-message" id="edit-job_title-error"></span> <br>
+            <label for="edit-employment_status">Employment Status:</label>
+            <select id="edit-employment_status" name="employment_status" required>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+            </select>
+            <span class="error-message" id="edit-employment_status-error"></span> <br>
+            <label for="edit-salary">Salary:</label>
+            <input type="number" id="edit-salary" name="salary" required min="0" max="99999999" step="0.01">
+            <span class="error-message" id="edit-salary-error"></span> <br>
+            <label for="edit-date_of_birth">Date of Birth:</label>
+            <input type="date" id="edit-date_of_birth" name="date_of_birth" required>
+            <span class="error-message" id="edit-date_of_birth-error"></span> <br>
             <label for="edit-address">Address:</label>
             <input type="text" id="edit-address" name="address" required maxlength="100">
             <span class="error-message" id="edit-address-error"></span> <br>
@@ -103,6 +121,7 @@
         </form>
     </div>
 </div>
+
 
 <div id="edit-confirmation-modal" class="modal">
     <div class="modal-content">
@@ -132,6 +151,21 @@
                 {% endfor %}
             </select>
             <span class="error-message" id="add-company-error"></span> <br>
+            <label for="add-job_title">Job Title:</label>
+            <input type="text" id="add-job_title" name="job_title" required maxlength="50">
+            <span class="error-message" id="add-job_title-error"></span> <br>
+            <label for="add-employment_status">Employment Status:</label>
+            <select id="add-employment_status" name="employment_status" required>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+            </select>
+            <span class="error-message" id="add-employment_status-error"></span> <br>
+            <label for="add-salary">Salary:</label>
+            <input type="number" id="add-salary" name="salary" required min="0" max="99999999" step="0.01">
+            <span class="error-message" id="add-salary-error"></span> <br>
+            <label for="add-date_of_birth">Date of Birth:</label>
+            <input type="date" id="add-date_of_birth" name="date_of_birth" required>
+            <span class="error-message" id="add-date_of_birth-error"></span> <br>
             <label for="add-address">Address:</label>
             <input type="text" id="add-address" name="address" required maxlength="100">
             <span class="error-message" id="add-address-error"></span> <br>
@@ -143,31 +177,6 @@
             <span class="error-message" id="add-county-error"></span> <br>
             <button type="button" onclick="submitAddEmployee()">Add Employee</button>
         </form>
-    </div>
-</div>
-
-<div id="manage-companies-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeManageCompaniesModal()">&times;</span>
-        <h2>Manage Companies</h2>
-        <form id="add-company-form">
-            <label for="company-name">Name:</label>
-            <input type="text" id="company-name" name="name" required maxlength="50">
-            <input type="color" id="company-color" name="color" required>
-            <span class="error-message" id="company-name-error"></span>
-            <span class="error-message" id="company-color-error"></span> <br>
-            <button type="button" onclick="addCompany()">Add Company</button>
-        </form>
-        <div id="company-list" style="margin-top: 5%"></div>
-    </div>
-</div>
-
-<div id="delete-company-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeDeleteCompanyModal()">&times;</span>
-        <p>Are you sure you want to delete this company and all its employees?</p>
-        <button type="button" onclick="deleteCompany()">Yes</button>
-        <button type="button" onclick="closeDeleteCompanyModal()">No</button>
     </div>
 </div>
 

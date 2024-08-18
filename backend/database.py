@@ -177,6 +177,108 @@ if not Employees_exists or not Companies_exists or not Users_exists:
     );
     """)
     
+    projects = [
+        {
+            "name": "Project Alpha",
+            "description": "Developing a new AI model.",
+            "start_date": "2023-01-10",
+            "end_date": "2023-07-15",
+            "budget": 150000,
+            "time_estimation": 180,
+            "company_ids": [1, 2],
+            "employee_ids": [1, 2, 7]
+        },
+        {
+            "name": "Project Beta",
+            "description": "Upgrading the infrastructure.",
+            "start_date": "2023-03-01",
+            "end_date": "2023-10-01",
+            "budget": 200000,
+            "time_estimation": 214,
+            "company_ids": [2, 3],
+            "employee_ids": [6, 12]
+        },
+        {
+            "name": "Project Gamma",
+            "description": "Implementing cloud solutions.",
+            "start_date": "2022-06-20",
+            "end_date": "2023-02-20",
+            "budget": 250000,
+            "time_estimation": 245,
+            "company_ids": [3, 4],
+            "employee_ids": [3, 9]
+        },
+        {
+            "name": "Project Delta",
+            "description": "Redesigning the corporate website.",
+            "start_date": "2023-05-10",
+            "end_date": "2023-12-10",
+            "budget": 90000,
+            "time_estimation": 180,
+            "company_ids": [1, 4],
+            "employee_ids": [15, 10]
+        },
+        {
+            "name": "Project Epsilon",
+            "description": "Deploying a new CRM system.",
+            "start_date": "2022-11-15",
+            "end_date": "2023-04-20",
+            "budget": 120000,
+            "time_estimation": 157,
+            "company_ids": [1, 2, 3],
+            "employee_ids": [11, 13, 14]
+        },
+        {
+            "name": "Project Zeta",
+            "description": "Research and development for a new product.",
+            "start_date": "2023-02-28",
+            "end_date": "2023-11-30",
+            "budget": 300000,
+            "time_estimation": 275,
+            "company_ids": [3],
+            "employee_ids": [3]
+        },
+        {
+            "name": "Project Eta",
+            "description": "Expansion into new markets.",
+            "start_date": "2023-08-01",
+            "end_date": "2024-01-15",
+            "budget": 175000,
+            "time_estimation": 168,
+            "company_ids": [2, 4],
+            "employee_ids": [10, 11]
+        },
+        {
+            "name": "Project Theta",
+            "description": "Implementing data analytics platform.",
+            "start_date": "2023-04-01",
+            "end_date": "2023-12-01",
+            "budget": 220000,
+            "time_estimation": 245,
+            "company_ids": [1, 3],
+            "employee_ids": [1 ,12 ,13]
+        }
+    ]
+    
+    for project in projects:
+        cursor.execute("""
+        INSERT INTO Projects (name, description, start_date, end_date, budget, time_estimation)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (project["name"], project["description"], project["start_date"], project["end_date"], project["budget"], project["time_estimation"]))
+        project_id = cursor.lastrowid
+
+        for company_id in project["company_ids"]:
+            cursor.execute("""
+            INSERT INTO ProjectCompanies (project_id, company_id)
+            VALUES (%s, %s)
+            """, (project_id, company_id))
+            
+        for employee_id in project["employee_ids"]:
+            cursor.execute("""
+            INSERT INTO ProjectEmployees (project_id, employee_id)
+            VALUES (%s, %s)
+            """, (project_id, employee_id))
+    
     mydb.commit()
     print("Successfully created tables")
     

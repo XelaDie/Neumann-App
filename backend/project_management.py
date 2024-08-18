@@ -1,6 +1,6 @@
 from .database import get_connection
 
-def fetch_filtered_projects(date_range=None, company_ids=None, statistic=None):
+def fetch_filtered_projects(company_ids=None, statistic=None):
     mydb = get_connection()
     cursor = mydb.cursor(dictionary=True)
 
@@ -8,7 +8,6 @@ def fetch_filtered_projects(date_range=None, company_ids=None, statistic=None):
     SELECT p.*, 
            GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') as companies, 
            GROUP_CONCAT(DISTINCT CONCAT(e.fname, ' ', e.lname) SEPARATOR ', ') as employees,
-           DATEDIFF(p.end_date, p.start_date) as duration,
            COUNT(DISTINCT pe.employee_id) as employee_count
     FROM Projects p
     LEFT JOIN ProjectCompanies pc ON p.id = pc.project_id
@@ -20,27 +19,17 @@ def fetch_filtered_projects(date_range=None, company_ids=None, statistic=None):
 
     params = []
 
-    if date_range:
-        start_date, end_date = date_range
-
-        if start_date and start_date != 'start':
-            query += " AND p.start_date >= %s"
-            params.append(start_date)
-        if end_date and end_date != 'end':
-            query += " AND p.end_date <= %s"
-            params.append(end_date)
-
     if company_ids:
         query += " AND c.id IN (%s)" % ','.join(['%s'] * len(company_ids))
         params.extend(company_ids)
 
     query += " GROUP BY p.id"
     
-    if statistic == 'budget':
+    if statistic == 'most_expensive':
         query += " ORDER BY p.budget DESC"
-    elif statistic == 'duration':
-        query += " ORDER BY duration DESC"
-    elif statistic == 'employees':
+    elif statistic == 'longest_duration':
+        query += " ORDER BY p.time_estimation DESC"
+    elif statistic == 'most_employees':
         query += " ORDER BY employee_count DESC"
 
     cursor.execute(query, params)

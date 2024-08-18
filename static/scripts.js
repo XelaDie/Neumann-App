@@ -502,13 +502,9 @@ function closeDeleteCompanyModal() {
 let currentProjectId;
 
 document.getElementById('statistic-select').addEventListener('change', updateChart);
-document.getElementById('start-date').addEventListener('change', updateChart);
-document.getElementById('end-date').addEventListener('change', updateChart);
 document.getElementById('company-filter-form').addEventListener('change', updateChart);
 
 function updateChart() {
-    const startDate = document.getElementById('start-date').value || null;
-    const endDate = document.getElementById('end-date').value || null;
     const companyIds = Array.from(document.querySelectorAll('#company-filter-form input[name="company"]:checked')).map(checkbox => checkbox.value);
     const statistic = document.getElementById('statistic-select').value;
 
@@ -517,7 +513,7 @@ function updateChart() {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ date_range: { start: startDate, end: endDate }, company_ids: companyIds, statistic })
+        body: JSON.stringify({ company_ids: companyIds, statistic })
     })
     .then(response => response.json())
     .then(data => {
@@ -544,8 +540,8 @@ function displayChart(data, statistic) {
         toolTipLabel = (project) => `Budget: ${project.budget}$ - Companies: ${project.companies.join(', ')} - Time Estimation: ${project.time_estimation}d`;
     } else if (statistic === 'longest_duration') {
         label = 'Duration (days)';
-        chartData = data.map(project => project.duration);
-        toolTipLabel = (project) => `Duration: ${project.duration} days - Companies: ${project.companies.join(', ')} - Budget: ${project.budget}$`;
+        chartData = data.map(project => project.time_estimation);
+        toolTipLabel = (project) => `Duration: ${project.time_estimation} days - Companies: ${project.companies.join(', ')} - Budget: ${project.budget}$`;
     } else if (statistic === 'most_employees') {
         label = 'Number of Employees';
         chartData = data.map(project => project.employee_count);
@@ -589,12 +585,12 @@ function displayChart(data, statistic) {
     };
 
     projectChart = new Chart(ctx, config);
-    document.getElementById('project-chart').style.width = "100%"
-    document.getElementById('project-chart').style.height = "270px"
+    document.getElementById('project-chart').style.width = "100%";
+    document.getElementById('project-chart').style.height = "220px";
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    displayChart([], 'most_expensive');
+    updateChart();
 });
 
 function showAddProjectModal() {

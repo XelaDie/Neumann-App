@@ -191,11 +191,10 @@ def projects():
 
 @app.route('/fetch_filtered_projects', methods=['POST'])
 def fetch_filtered_projects_route():
-    date_range = request.json.get('date_range', {})
     company_ids = request.json.get('company_ids', [])
     statistic = request.json.get('statistic', 'most_expensive')
     
-    projects = fetch_filtered_projects(date_range, company_ids, statistic)
+    projects = fetch_filtered_projects(company_ids, statistic)
     return jsonify(projects)
 
 @app.route('/add_project', methods=['POST'])
